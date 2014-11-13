@@ -48,19 +48,29 @@
                     
 		</div>
 		</div>
-		        </header>
-		        
-		        <article>
-            <%
 
-                            if (logged == 1) {
-                            if (lg.getlogedin()) {
-                    %>
+        </header>
+        
+		<article>
+		<p>This site is used in order to convert a normal picture to a cartoonish one</p>
+		<h1><p>References:<br>
+		
+		Code is based on instatoons: https://github.com/acobley/Instatoons-PMessios<br>
+		
+		Oil painting tutorial: https://github.com/lindenb/jsandbox/blob/master/src/sandbox/OilPainting.java<br>
+		
+		logo fonts: http://www.dafont.com/from-cartoon-blocks.font<br>
 
-                <h2>Welcome back, <a class="prof-link" href="/Instatoons-PMessios/Profile"><%=lg.getUsername()%></a>!</h2>
-                    <img src="/Instatoons-PMessios/Pictures/Avatars/<%=lg.getAvatar()%>.png" alt="No avatar icon found" /><%}}%>                   
-        </article>
+		bg: http://www.psdgraphics.com/file/cloudy-sky-cartoon.jpg<br>
 
+		logo eyes: http://www.officialpsds.com/cartoon-eyes-PSD65112.html<br>
+
+		bg size: http://css-tricks.com/perfect-full-page-background-image/<br>
+
+		nav bar: http://www.jacklmoore.com/notes/css3-ribbon-menu/<br>
+
+		avatars: http://www.resourcesgraphics.com/vector-graphic/vector-cartoon-vector-graphic/16-funny-faces-cartoon-characters-icons-2.html</p></h1>
+		</article>
         <footer>
             <ul>
                 <li>&COPY;Paris Messios</li>

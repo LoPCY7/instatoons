@@ -1,4 +1,4 @@
-package uk.ac.dundee.computing.aec.instagrim.models;
+package uk.ac.dundee.computing.aec.instatoons.models;
 
 /*
  * Expects a cassandra columnfamily defined as
@@ -22,7 +22,11 @@ import com.datastax.driver.core.utils.Bytes;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URL;
+import java.util.Arrays;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,14 +38,14 @@ import javax.imageio.ImageIO;
 import static org.imgscalr.Scalr.*;
 import org.imgscalr.Scalr.Method;
 
-import uk.ac.dundee.computing.aec.instagrim.lib.*;
-import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
+import uk.ac.dundee.computing.aec.instatoons.lib.*;
+import uk.ac.dundee.computing.aec.instatoons.stores.Pic;
 //import uk.ac.dundee.computing.aec.stores.TweetStore;
 
 public class PicModel {
 
     Cluster cluster;
-
+    
     public void PicModel() {
 
     }
@@ -50,28 +54,28 @@ public class PicModel {
         this.cluster = cluster;
     }
 
-    public void insertPic(byte[] b, String type, String name, String user) {
+    public void insertPic(byte[] b, String type, String name, String user, String filterSelection) {
         try {
             Convertors convertor = new Convertors();
-
+            //Converts picture to string(?!)
             String types[]=Convertors.SplitFiletype(type);
             ByteBuffer buffer = ByteBuffer.wrap(b);
             int length = b.length;
             java.util.UUID picid = convertor.getTimeUUID();
             
             //The following is a quick and dirty way of doing this, will fill the disk quickly !
-            Boolean success = (new File("/var/tmp/instagrim/")).mkdirs();
-            FileOutputStream output = new FileOutputStream(new File("/var/tmp/instagrim/" + picid));
+            Boolean success = (new File("/var/tmp/Instatoons-PMessios/")).mkdirs();
+            FileOutputStream output = new FileOutputStream(new File("/var/tmp/Instatoons-PMessios/" + picid));
 
             output.write(b);
-            byte []  thumbb = picresize(picid.toString(),types[1]);
+            byte []  thumbb = picresize(picid.toString(),types[1],filterSelection);
             int thumblength= thumbb.length;
             ByteBuffer thumbbuf=ByteBuffer.wrap(thumbb);
-            byte[] processedb = picdecolour(picid.toString(),types[1]);
+            byte[] processedb = picdecolour(picid.toString(),types[1], filterSelection);
             ByteBuffer processedbuf=ByteBuffer.wrap(processedb);
             int processedlength=processedb.length;
-            Session session = cluster.connect("instagrim");
-
+            Session session = cluster.connect("instatoons");
+            //It connects to the db (cassandra) and then it inserts all the data of the submitted picture
             PreparedStatement psInsertPic = session.prepare("insert into pics ( picid, image,thumb,processed, user, interaction_time,imagelength,thumblength,processedlength,type,name) values(?,?,?,?,?,?,?,?,?,?,?)");
             PreparedStatement psInsertPicToUser = session.prepare("insert into userpiclist ( picid, user, pic_added) values(?,?,?)");
             BoundStatement bsInsertPic = new BoundStatement(psInsertPic);
@@ -87,14 +91,13 @@ public class PicModel {
         }
     }
 
-    public byte[] picresize(String picid,String type) {
+    public byte[] picresize(String picid,String type,String filterSelection) {
         try {
-            BufferedImage BI = ImageIO.read(new File("/var/tmp/instagrim/" + picid));
-            BufferedImage thumbnail = createThumbnail(BI);
+            BufferedImage BI = ImageIO.read(new File("/var/tmp/Instatoons-PMessios/" + picid));
+            BufferedImage thumbnail = createThumbnail(BI,filterSelection);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(thumbnail, type, baos);
             baos.flush();
-            
             byte[] imageInByte = baos.toByteArray();
             baos.close();
             return imageInByte;
@@ -104,13 +107,13 @@ public class PicModel {
         return null;
     }
     
-    public byte[] picdecolour(String picid,String type) {
+
+    public byte[] picdecolour(String picid,String type, String filterSelection) {
         try {
-            BufferedImage BI = ImageIO.read(new File("/var/tmp/instagrim/" + picid));
-            BufferedImage processed = createProcessed(BI);
+            BufferedImage BI = ImageIO.read(new File("/var/tmp/Instatoons-PMessios/" + picid));
+            BufferedImage processed = createProcessed(BI,filterSelection);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(processed, type, baos);
-            baos.flush();
             byte[] imageInByte = baos.toByteArray();
             baos.close();
             return imageInByte;
@@ -120,21 +123,103 @@ public class PicModel {
         return null;
     }
 
-    public static BufferedImage createThumbnail(BufferedImage img) {
-        img = resize(img, Method.SPEED, 250, OP_ANTIALIAS, OP_GRAYSCALE);
+    public static BufferedImage createThumbnail(BufferedImage img,String filterSelection) {
+        BufferedImage toon;
+        //Checks if the filter selection is checked
+    	if (filterSelection==null)
+    		img = resize(img, Method.SPEED, 250, OP_ANTIALIAS);
+    	else
+    		img = resize(img, Method.SPEED, 250, OP_ANTIALIAS, OP_GRAYSCALE);
         // Let's add a little border before we return result.
-        return pad(img, 2);
+    	toon=runToon(img);
+        return pad(toon, 2);
     }
     
-   public static BufferedImage createProcessed(BufferedImage img) {
+   public static BufferedImage createProcessed(BufferedImage img,String filterSelection) {
+	    BufferedImage toon;
         int Width=img.getWidth()-1;
+        //Checks if the filter selection is checked
+        if (filterSelection==null)
+        img = resize(img, Method.SPEED, Width, OP_ANTIALIAS);
+        else
         img = resize(img, Method.SPEED, Width, OP_ANTIALIAS, OP_GRAYSCALE);
-        return pad(img, 4);
+        toon=runToon(img);
+        return pad(toon, 4);
     }
+   
+   //It is used to convert the picture to cartoon (actually, to oil painting)
+	private static BufferedImage runToon(BufferedImage sourceImage)
+		{
+
+		int radius=10;
+		int intensityLevels=24;
+
+		BufferedImage dest=new BufferedImage(
+		sourceImage.getWidth(),
+		sourceImage.getHeight(),
+		sourceImage.getType()
+		);
+		int averageR[] = new int[intensityLevels];
+		int averageG[]=new int[intensityLevels];
+		int averageB[]=new int[intensityLevels];
+		int intensityCount[]=new int[intensityLevels];
+		for(int x=0;x< sourceImage.getWidth();++x)
+		{
+			int left = Math.max(0,x-radius);
+			int right = Math.min(x+radius,dest.getWidth()-1);
+			for(int y=0;y< sourceImage.getHeight();++y)
+			{
+				int top = Math.max(0,y-radius);
+				int bottom = Math.min(y+radius,dest.getHeight()-1);
+				Arrays.fill(averageR,0);
+				Arrays.fill(averageG,0);
+				Arrays.fill(averageB,0);
+				Arrays.fill(intensityCount,0);
+				int maxIndex=-1;
+			for(int j=top;j<=bottom;++j)
+			{
+				for(int i=left;i<=right;++i)
+				{
+				if(!inRange(x,y,i, j)) continue;
+				int rgb = sourceImage.getRGB(i,j);
+				int red = (rgb >> 16)&0xFF;
+				int green = (rgb >>8)&0xFF;
+				int blue = (rgb )&0xFF;
+				int intensityIndex = (int)((((red+green+blue)/3.0)/256.0)*intensityLevels);
+				intensityCount[intensityIndex]++;
+				averageR[intensityIndex] += red;
+				averageG[intensityIndex] += green;
+				averageB[intensityIndex] += blue;
+				if( maxIndex==-1 ||
+						intensityCount[maxIndex]< intensityCount[intensityIndex]
+				)
+						{
+							maxIndex = intensityIndex;
+						}
+				}
+			}
+				int curMax = intensityCount[maxIndex];
+				int r = averageR[maxIndex] / curMax;
+				int g = averageG[maxIndex] / curMax;
+				int b = averageB[maxIndex] / curMax;
+				int rgb=((r << 16) | ((g << 8) | b));
+				dest.setRGB(x,y,rgb);
+			}
+		}
+			return dest;
+		}  
+	
+	private static boolean inRange(int cx,int cy,int i,int j)
+	{
+		double d;
+		int radius=10;
+		d=Point2D.distance(i, j,cx,cy);
+		return d<radius;
+	}
    
     public java.util.LinkedList<Pic> getPicsForUser(String User) {
         java.util.LinkedList<Pic> Pics = new java.util.LinkedList<>();
-        Session session = cluster.connect("instagrim");
+        Session session = cluster.connect("instatoons");
         PreparedStatement ps = session.prepare("select picid from userpiclist where user =?");
         ResultSet rs = null;
         BoundStatement boundStatement = new BoundStatement(ps);
@@ -158,7 +243,7 @@ public class PicModel {
     }
 
     public Pic getPic(int image_type, java.util.UUID picid) {
-        Session session = cluster.connect("instagrim");
+        Session session = cluster.connect("instatoons");
         ByteBuffer bImage = null;
         String type = null;
         int length = 0;

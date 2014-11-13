@@ -1,4 +1,4 @@
-package uk.ac.dundee.computing.aec.instagrim.lib;
+package uk.ac.dundee.computing.aec.instatoons.lib;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +14,8 @@ public final class Keyspaces {
     public static void SetUpKeySpaces(Cluster c) {
         try {
             //Add some keyspaces here
-            String createkeyspace = "create keyspace if not exists instagrim  WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}";
-            String CreatePicTable = "CREATE TABLE if not exists instagrim.Pics ("
+            String createkeyspace = "create keyspace if not exists instatoons  WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}";
+            String CreatePicTable = "CREATE TABLE if not exists instatoons.Pics ("
                     + " user varchar,"
                     + " picid uuid, "
                     + " interaction_time timestamp,"
@@ -30,24 +30,30 @@ public final class Keyspaces {
                     + " name  varchar,"
                     + " PRIMARY KEY (picid)"
                     + ")";
-            String Createuserpiclist = "CREATE TABLE if not exists instagrim.userpiclist (\n"
+            String Createuserpiclist = "CREATE TABLE if not exists instatoons.userpiclist (\n"
                     + "picid uuid,\n"
                     + "user varchar,\n"
                     + "pic_added timestamp,\n"
                     + "PRIMARY KEY (user,pic_added)\n"
                     + ") WITH CLUSTERING ORDER BY (pic_added desc);";
-            String CreateAddressType = "CREATE TYPE if not exists instagrim.address (\n"
+            String CreateAvatarsTable = "CREATE TABLE if not exists instatoons.Avatars ("
+            		+ "picid uuid,\n"
+                    + "user varchar,\n"
+                    + "pic_added timestamp,\n"
+                    + "PRIMARY KEY (user,pic_added)\n"
+                    + ")";
+            String CreateAddressType = "CREATE TYPE if not exists instatoons.address (\n"
                     + "      street text,\n"
                     + "      city text,\n"
                     + "      zip int\n"
                     + "  );";
-            String CreateUserProfile = "CREATE TABLE if not exists instagrim.userprofiles (\n"
-                    + "      login text PRIMARY KEY,\n"
-                     + "     password text,\n"
+            String CreateUserProfile = "CREATE TABLE if not exists instatoons.userprofiles (\n"
                     + "      first_name text,\n"
-                    + "      last_name text,\n"
-                    + "      email set<text>,\n"
-                    + "      addresses  map<text, frozen <address>>\n"
+                    + "      login text PRIMARY KEY,\n"
+                    + "      password text,\n"
+                    + "      birth text,\n"
+                    + "      email text,\n"
+                    + "      avatar text\n"
                     + "  );";
             Session session = c.connect();
             try {
@@ -57,9 +63,9 @@ public final class Keyspaces {
                         statement);
                 ResultSet rs = session
                         .execute(boundStatement);
-                System.out.println("created instagrim ");
+                System.out.println("created instatoons ");
             } catch (Exception et) {
-                System.out.println("Can't create instagrim " + et);
+                System.out.println("Can't create instatoons " + et);
             }
 
             //now add some column families 
@@ -91,7 +97,13 @@ public final class Keyspaces {
                 SimpleStatement cqlQuery = new SimpleStatement(CreateUserProfile);
                 session.execute(cqlQuery);
             } catch (Exception et) {
-                System.out.println("Can't create Address Profile " + et);
+                System.out.println("Can't create User Profile " + et);
+            }
+            try {
+                SimpleStatement cqlQuery = new SimpleStatement(CreateAvatarsTable);
+                session.execute(cqlQuery);
+            } catch (Exception et) {
+                System.out.println("Can't create User Avatar " + et);
             }
             session.close();
 

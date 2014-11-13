@@ -1,6 +1,7 @@
-package uk.ac.dundee.computing.aec.instagrim.servlets;
+package uk.ac.dundee.computing.aec.instatoons.servlets;
 
 import com.datastax.driver.core.Cluster;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -19,21 +21,23 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
-import uk.ac.dundee.computing.aec.instagrim.lib.CassandraHosts;
-import uk.ac.dundee.computing.aec.instagrim.lib.Convertors;
-import uk.ac.dundee.computing.aec.instagrim.models.PicModel;
-import uk.ac.dundee.computing.aec.instagrim.stores.LoggedIn;
-import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
+import uk.ac.dundee.computing.aec.instatoons.lib.CassandraHosts;
+import uk.ac.dundee.computing.aec.instatoons.lib.Convertors;
+import uk.ac.dundee.computing.aec.instatoons.models.PicModel;
+import uk.ac.dundee.computing.aec.instatoons.stores.LoggedIn;
+import uk.ac.dundee.computing.aec.instatoons.stores.Pic;
 
 /**
  * Servlet implementation class Image
  */
-@WebServlet(urlPatterns = {
+@WebServlet(name = "Image", urlPatterns = {
     "/Image",
     "/Image/*",
     "/Thumb/*",
     "/Images",
-    "/Images/*"
+    "/Images/*",
+    "/Upload",
+    "/About"
 })
 @MultipartConfig
 
@@ -43,8 +47,6 @@ public class Image extends HttpServlet {
     private Cluster cluster;
     private HashMap CommandsMap = new HashMap();
     
-    
-
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -54,7 +56,8 @@ public class Image extends HttpServlet {
         CommandsMap.put("Image", 1);
         CommandsMap.put("Images", 2);
         CommandsMap.put("Thumb", 3);
-
+        CommandsMap.put("Upload", 4);
+        CommandsMap.put("About", 5);
     }
 
     public void init(ServletConfig config) throws ServletException {
@@ -86,6 +89,11 @@ public class Image extends HttpServlet {
             case 3:
                 DisplayImage(Convertors.DISPLAY_THUMB,args[2],  response);
                 break;
+            case 4:
+            	uploadPicture(request, response);
+                break;
+            case 5:
+            	aboutSite(request, response);
             default:
                 error("Bad Operator", response);
         }
@@ -99,6 +107,16 @@ public class Image extends HttpServlet {
         request.setAttribute("Pics", lsPics);
         rd.forward(request, response);
 
+    }
+    
+    private void uploadPicture(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        RequestDispatcher rd = request.getRequestDispatcher("/upload.jsp");
+        rd.forward(request, response);
+    }
+    
+    private void aboutSite(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        RequestDispatcher rd = request.getRequestDispatcher("/about.jsp");
+        rd.forward(request, response);
     }
 
     private void DisplayImage(int type,String Image, HttpServletResponse response) throws ServletException, IOException {
@@ -123,12 +141,12 @@ public class Image extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        for (Part part : request.getParts()) {
+    	String filterSelection=request.getParameter("filterSelector");
+    	for (Part part : request.getParts()) {
             System.out.println("Part Name " + part.getName());
 
             String type = part.getContentType();
             String filename = part.getSubmittedFileName();
-            
             InputStream is = request.getPart(part.getName()).getInputStream();
             int i = is.available();
             HttpSession session=request.getSession();
@@ -143,7 +161,7 @@ public class Image extends HttpServlet {
                 System.out.println("Length : " + b.length);
                 PicModel tm = new PicModel();
                 tm.setCluster(cluster);
-                tm.insertPic(b, type, filename, username);
+                tm.insertPic(b, type, filename, username,filterSelection);
 
                 is.close();
             }

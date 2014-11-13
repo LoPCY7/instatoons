@@ -8,9 +8,150 @@ and open the template in the editor.
     Author     : Administrator
 */
 
+html {
+    background: url(/Instatoons-PMessios/Pictures/bg.jpg) no-repeat fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-color: #cccccc;
+}
 
-nav {
-    text-align: left;
-    border: 2px;
-    float: right;
+article {
+    margin: 30px 50px;
+    background-color:rgba(255,255,255,0.5);
+    border: 1px solid black;
+    -moz-border-radius: 15px;
+	border-radius: 15px;
+}
+
+article p {
+    margin: 30px 40px;
+    font-weight: bold;
+    color: #000000;
+}
+
+article table {
+    margin: 30px 40px;
+    font-weight: bold;
+    color: #000000;
+}
+
+article h3 {
+    margin: 30px 40px;
+    font-weight: bold;
+    color: #000000;
+}
+
+article hRed {
+    margin: 30px 40px;
+    font-weight: bold;
+    color: #cc0000;
+    display: block;
+    font-size: 1.5em;
+    margin-top: 0.83em;
+    margin-bottom: 0.83em;
+}
+
+.header-logo {
+	display:block;
+    height: 188px;
+    width: 300px;
+	background:url(/Instatoons-PMessios/Pictures/logo.png) no-repeat;
+	text-indent: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	margin:0 auto;
+}
+
+.prof-link{
+	color: #004080;
+	text-decoration: none;
+}
+
+.prof-link:hover {
+	color: #3366CC; 
+	text-decoration: underline;
+}
+
+h2 {
+	color: #004080;
+}
+
+table.avatars {
+    margin-left:auto; 
+    margin-right:auto;
+  }
+
+/*Navigation Menu*/
+
+#wrapper {
+	padding:0 0 0;
+	margin:auto;
+	text-align:center;
+}
+
+.ribbon {
+	display:inline-block;
+}
+
+.ribbon:after, .ribbon:before {
+	margin-top:0.5em;
+	content: "";
+	float:left;
+	border:1.5em solid #004080;
+}
+
+.ribbon:after {
+	border-right-color:transparent;
+}
+
+.ribbon:before {
+	border-left-color:transparent;
+}
+
+.ribbon a:link, .ribbon a:visited { 
+	color:#ffffff;
+	text-decoration:none;
+    float:left;
+    height:3.5em;
+	overflow:hidden;
+}
+
+.ribbon span {
+	background:#004080;
+	display:inline-block;
+	line-height:3em;
+	padding:0 1em;
+	margin-top:0.5em;
+	position:relative;
+
+	-webkit-transition: background-color 0.2s, margin-top 0.2s;  /* Saf3.2+, Chrome */
+	-moz-transition: background-color 0.2s, margin-top 0.2s;  /* FF4+ */
+	-ms-transition: background-color 0.2s, margin-top 0.2s;  /* IE10 */
+	-o-transition: background-color 0.2s, margin-top 0.2s;  /* Opera 10.5+ */
+	transition: background-color 0.2s, margin-top 0.2s;
+}
+
+.ribbon a:hover span {
+	background:#002448;
+	margin-top:0;
+}
+
+.ribbon span:before {
+	content: "";
+	position:absolute;
+	top:3em;
+	left:0;
+	border-right:0.5em solid #9B8651;
+	border-bottom:0.5em solid #004080;
+}
+
+.ribbon span:after {
+	content: "";
+	position:absolute;
+	top:3em;
+	right:0;
+	border-left:0.5em solid #9B8651;
+	border-bottom:0.5em solid #004080;
 }

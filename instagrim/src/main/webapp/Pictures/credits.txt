@@ -1,0 +1,11 @@
+logo fonts: http://www.dafont.com/from-cartoon-blocks.font
+
+bg: http://www.psdgraphics.com/file/cloudy-sky-cartoon.jpg
+
+logo eyes: http://www.officialpsds.com/cartoon-eyes-PSD65112.html
+
+bg size: http://css-tricks.com/perfect-full-page-background-image/
+
+nav bar: http://www.jacklmoore.com/notes/css3-ribbon-menu/
+
+avatars: http://www.resourcesgraphics.com/vector-graphic/vector-cartoon-vector-graphic/16-funny-faces-cartoon-characters-icons-2.html

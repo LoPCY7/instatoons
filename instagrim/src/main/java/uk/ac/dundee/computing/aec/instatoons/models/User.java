@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package uk.ac.dundee.computing.aec.instagrim.models;
+package uk.ac.dundee.computing.aec.instatoons.models;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
@@ -14,8 +14,8 @@ import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import uk.ac.dundee.computing.aec.instagrim.lib.AeSimpleSHA1;
-import uk.ac.dundee.computing.aec.instagrim.stores.Pic;
+import uk.ac.dundee.computing.aec.instatoons.lib.AeSimpleSHA1;
+import uk.ac.dundee.computing.aec.instatoons.stores.Pic;
 
 /**
  *
@@ -27,7 +27,8 @@ public class User {
         
     }
     
-    public boolean RegisterUser(String username, String Password){
+    //Registers the user and encrypts the password
+    public boolean RegisterUser(String name, String username, String Password, String birth, String email, String avatar){
         AeSimpleSHA1 sha1handler=  new AeSimpleSHA1();
         String EncodedPassword=null;
         try {
@@ -36,13 +37,13 @@ public class User {
             System.out.println("Can't check your password");
             return false;
         }
-        Session session = cluster.connect("instagrim");
-        PreparedStatement ps = session.prepare("insert into userprofiles (login,password) Values(?,?)");
+        Session session = cluster.connect("instatoons");
+        PreparedStatement ps = session.prepare("insert into userprofiles (first_name,login,password,birth,email,avatar) Values(?,?,?,?,?,?)");
        
         BoundStatement boundStatement = new BoundStatement(ps);
         session.execute( // this is where the query is executed
                 boundStatement.bind( // here you are binding the 'boundStatement'
-                        username,EncodedPassword));
+                        name,username,EncodedPassword,birth,email,avatar));
         //We are assuming this always works.  Also a transaction would be good here !
         
         return true;
@@ -57,7 +58,7 @@ public class User {
             System.out.println("Can't check your password");
             return false;
         }
-        Session session = cluster.connect("instagrim");
+        Session session = cluster.connect("instatoons");
         PreparedStatement ps = session.prepare("select password from userprofiles where login =?");
         ResultSet rs = null;
         BoundStatement boundStatement = new BoundStatement(ps);

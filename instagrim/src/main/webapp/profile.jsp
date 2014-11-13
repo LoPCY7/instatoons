@@ -1,6 +1,6 @@
 <%-- 
-    Document   : index
-    Created on : Sep 28, 2014, 7:01:44 PM
+    Document   : login.jsp
+    Created on : Sep 28, 2014, 12:04:14 PM
     Author     : Administrator
 --%>
 
@@ -8,19 +8,19 @@
 <%@page import="uk.ac.dundee.computing.aec.instatoons.stores.*" %>
 <!DOCTYPE html>
 <html>
-
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>instatoons</title>
         <link rel="stylesheet" type="text/css" href="Styles.css" />
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">	
+
     </head>
-    
-    <body>	
+    <body>
         <header>
-            <h1>
+        	<h1>
             	<a class="header-logo" href="/Instatoons-PMessios">instatoons</a>
             </h1>
-            <div id="wrapper">
+        </header>
+             <div id="wrapper">
 			<div class='ribbon'>
                
                 <a href="/Instatoons-PMessios"><span>&#10029;Home</span></a>
@@ -32,7 +32,6 @@
                         String UserName = lg.getUsername();
                         logged=1;
                         if (logged == 1) {
-                            //String UserName = lg.getUsername();
                             if (lg.getlogedin()) {
                     %>
                 <a href="/Instatoons-PMessios/Profile"><span>&#10029;Profile</span></a>
@@ -48,19 +47,24 @@
                     
 		</div>
 		</div>
-		        </header>
-		        
-		        <article>
-            <%
+       
+        <article>
+        <%
+        if (logged == 1) {
+            if (lg.getlogedin()) {%>
+            <p>
+            <h1>Hello <%=lg.getUsername()%>! <br>
+            <img src="/Instatoons-PMessios/Pictures/Avatars/<%=lg.getAvatar()%>.png" alt="No avatar icon found" />
+            <br>
+            <br>
+            Here are your details:</h1>
+            <h2>Name: <%=lg.getFullName()%> <br>
+            Date of Birth: <%=lg.getDoB()%> <br>
+            E-mai: <%=lg.getEmail()%> <br></h2>
+            <%}}%>
 
-                            if (logged == 1) {
-                            if (lg.getlogedin()) {
-                    %>
 
-                <h2>Welcome back, <a class="prof-link" href="/Instatoons-PMessios/Profile"><%=lg.getUsername()%></a>!</h2>
-                    <img src="/Instatoons-PMessios/Pictures/Avatars/<%=lg.getAvatar()%>.png" alt="No avatar icon found" /><%}}%>                   
         </article>
-
         <footer>
             <ul>
                 <li>&COPY;Paris Messios</li>
